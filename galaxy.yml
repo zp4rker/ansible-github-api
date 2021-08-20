@@ -1,0 +1,12 @@
+namespace: zp4rker
+name: github
+version: 1.0.0
+
+readme: README.md
+
+authors:
+- Zaeem Parker <iam@zp4rker.com>
+
+description: An ansible module to submit requests to the Github API.
+
+repository: https://github.com/zp4rker/ansible-github-api

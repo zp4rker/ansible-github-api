@@ -1,0 +1,21 @@
+---
+- fail:
+    msg: "Set the Github API key in vars/main.yml"
+  when: GITHUB_API_KEY == "fill_me_in"
+
+- github_api:
+    api_key: "{{GITHUB_API_KEY}}"
+    endpoint: user/repos
+    method: POST
+    data:
+      name: test-repo
+      description: This repository was created from Ansible.
+      auto_init: true
+
+- github_api:
+    api_key: "{{GITHUB_API_KEY}}"
+    endpoint: repos/zp4rker/test-repo
+  register: response
+
+- debug:
+    var: response
