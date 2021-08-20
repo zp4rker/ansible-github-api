@@ -11,8 +11,8 @@ def run_module():
 
     module_args = dict(
         api_key = dict(type = 'str', required = (not os.environ.get('GITHUB_API_KEY'))),
-        endpoint = dict(type = 'str', required = True),
         method = dict(type = 'str', choices = ['GET', 'POST', 'DELETE', 'PATCH'], default = 'GET'),
+        endpoint = dict(type = 'str', required = True),
         data = dict(type = 'dict', required = False)
     )
 
