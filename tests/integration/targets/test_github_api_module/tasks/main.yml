@@ -3,19 +3,45 @@
     msg: "Set the Github API key in vars/main.yml"
   when: GITHUB_API_KEY == "fill_me_in"
 
-- github_api:
-    api_key: "{{GITHUB_API_KEY}}"
-    endpoint: user/repos
-    method: POST
-    data:
-      name: test-repo
-      description: This repository was created from Ansible.
-      auto_init: true
+- name: Test cases
+  block:
 
-- github_api:
-    api_key: "{{GITHUB_API_KEY}}"
-    endpoint: repos/zp4rker/test-repo
-  register: response
+    - name: Failure case 1 - Invalid credentials
+      block:
+        - github_api:
+            api_key: "{{GITHUB_API_KEY}}a"
+            endpoint: user
+      rescue:
+        - name: Failure case 1 - Invalid credentials
+          assert:
+            that:
+              - ansible_failed_result is defined
+              - ansible_failed_result.msg == "Failed to authorise due to invalid credentials."
 
-- debug:
-    var: response
+    - name: Failure case 2 - Failed request
+      block:
+        - github_api:
+            api_key: "{{GITHUB_API_KEY}}"
+            endpoint: user/repos
+            method: POST
+            data:
+              namme: test-repo
+      rescue:
+        - name: Failure case 2 - Failed request
+          assert:
+            that:
+              - ansible_failed_result is defined
+              - '"Request failed with reason" in ansible_failed_result.msg'
+
+    - name: Success case
+      block:
+        - github_api:
+            api_key: "{{GITHUB_API_KEY}}"
+            endpoint: user
+          register: response
+
+        - name: Success case
+          assert:
+            that:
+              - response.payload is defined
+              - response.payload.node_id is defined

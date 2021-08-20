@@ -49,13 +49,15 @@ def run_module():
     else:
         response = requests.request(module.params['method'], uri, headers = headers)
 
-    if not response.ok:
-        module.fail_json(msg = f'Request failed with reason: {response.reason}', details = json.loads(response.text))
-
     try:
         result['payload'] = json.loads(response.text)
     except:
         result['payload'] = response.text
+
+    if response.reason == 'Unauthorized' and result['payload']['message'] == 'Bad credentials':
+        module.fail_json(msg = 'Failed to authorise due to invalid credentials.')
+    elif not response.ok:
+        module.fail_json(msg = f'Request failed with reason: {response.reason}', payload = result['payload'])
 
     module.exit_json(**result)
 
