@@ -10,7 +10,7 @@ def run_module():
     base_uri = "https://api.github.com/"
 
     module_args = dict(
-        api_key = dict(type = 'str', required = False),
+        api_key = dict(type = 'str', required = (not os.environ.get('GITHUB_API_KEY'))),
         endpoint = dict(type = 'str', required = True),
         method = dict(type = 'str', choices = ['GET', 'POST', 'DELETE', 'PATCH'], default = 'GET'),
         data = dict(type = 'dict', required = False)
