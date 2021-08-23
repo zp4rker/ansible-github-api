@@ -1,0 +1,14 @@
+---
+- fail:
+    msg: "Set the Github API key in vars/main.yml"
+  when: GITHUB_API_KEY == "fill_me_in"
+
+- github_repo_collaborators:
+    api_key: "{{GITHUB_API_KEY}}"
+    owner: zp4rker
+    name: test-repo
+    collaborators:
+      - username: zp4rker-woolies
+        role: admin
+      - username: test
+        role: push
