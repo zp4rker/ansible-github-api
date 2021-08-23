@@ -12,6 +12,7 @@
             api_key: "{{GITHUB_API_KEY}}a"
             owner: "{{repo.owner}}"
             name: "{{repo.name}}"
+            branch: "{{repo.branch}}"
             rules:
               required_approvals: 1
               require_code_owner_approval: yes
@@ -29,6 +30,7 @@
             api_key: "{{GITHUB_API_KEY}}"
             owner: "{{repo.owner}}"
             name: "{{repo.name}}"
+            branch: "{{repo.branch}}"
             rules:
               required_approvals: this will fail
       rescue:
@@ -44,6 +46,7 @@
             api_key: "{{GITHUB_API_KEY}}"
             owner: "{{repo.owner}}"
             name: "{{repo.name}}"
+            branch: "{{repo.branch}}"
             rules:
               required_approvals: 1
               require_code_owner_approval: yes
@@ -53,5 +56,7 @@
         - name: Success case
           assert:
             that:
-              - response.collaborators is defined
-              - response.collaborators|length == collaborators|length
+              - response.payload is defined
+              - response.payload.enforce_admins.enabled
+              - response.payload.required_pull_request_reviews.require_code_owner_reviews
+              - response.payload.required_pull_request_reviews.required_approving_review_count == 1
