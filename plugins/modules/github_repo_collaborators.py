@@ -16,7 +16,8 @@ def run_module():
 
     result = dict(
         changed=False,
-        collaborators={}
+        collaborators={},
+        payloads=[]
     )
 
     module = AnsibleModule(
@@ -55,7 +56,7 @@ def run_module():
             else:
                 module.fail_json(**response['error'])
 
-    result['collaborators'] = module.params['collaborators']
+        result['payloads'].append(response['payload'])
 
     module.exit_json(**result)
 
