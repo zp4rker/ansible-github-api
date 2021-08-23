@@ -1,39 +1,40 @@
 import requests
+import json
+from json import JSONDecodeError
 
 base_uri = "https://api.github.com/"
 
-def make_request(module):
-	if os.environ.get('GITHUB_API_KEY') and not module.params['api_key']:
-        api_key = os.environ.get('GITHUB_API_KEY')
-    else:
-        api_key = module.params['api_key']
 
-    if not api_key:
-        module.fail_json(msg = 'Github API Key was not provided! Please either use api_key or use an ENV variable named GITHUB_API_KEY')
+def make_request(request):
+    error = None
+
+    if not request['api_key']:
+        error = dict(msg='Github API Key was not provided! Please either use api_key or use an ENV variable named GITHUB_API_KEY')
+        return dict(error=error, payload=None, raw=None)
 
     # Remove unnecessary slashes
-    if module.params['endpoint'][0:1] == '/':
-        module.params['endpoint'] = module.params['endpoint'][1:]
+    if request['endpoint'][0:1] == '/':
+        request['endpoint'] = request['endpoint'][1:]
 
     headers = {
-        'Authorization': f'token {api_key}',
+        'Authorization': f'token {request["api_key"]}',
         'Accept': 'application/vnd.github.v3+json'
     }
-    uri = '{}{}'.format(base_uri, module.params['endpoint'])
-    
-    if module.params['data']:
-        response = requests.request(module.params['method'], uri, data = json.dumps(module.params['data']), headers = headers)
+    uri = '{}{}'.format(base_uri, request['endpoint'])
+
+    if request['data']:
+        response = requests.request(request['method'], uri, data=json.dumps(request['data']), headers=headers)
     else:
-        response = requests.request(module.params['method'], uri, headers = headers)
+        response = requests.request(request['method'], uri, headers=headers)
 
     try:
-        result['payload'] = json.loads(response.text)
-    except:
-        result['payload'] = response.text
+        payload = json.loads(response.text)
+    except JSONDecodeError:
+        payload = response.text
 
-    if response.reason == 'Unauthorized' and result['payload']['message'] == 'Bad credentials':
-        module.fail_json(msg = 'Failed to authorise due to invalid credentials.')
+    if response.reason == 'Unauthorized' and payload['message'] == 'Bad credentials':
+        error = dict(msg='Failed to authorise due to invalid credentials.')
     elif not response.ok:
-        module.fail_json(msg = f'Request failed with reason: {response.reason}', payload = result['payload'])
+        error = dict(msg=f'Request failed with reason: {response.reason}', payload=payload)
 
-    return response
+    return dict(error=error, payload=payload, raw=response)
