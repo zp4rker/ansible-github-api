@@ -16,7 +16,6 @@ def run_module():
 
     result = dict(
         changed=False,
-        collaborators={},
         payloads=[]
     )
 

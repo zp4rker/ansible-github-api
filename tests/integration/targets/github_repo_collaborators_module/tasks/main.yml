@@ -47,5 +47,8 @@
         - name: Success case
           assert:
             that:
-              - response.collaborators is defined
-              - response.collaborators|length == collaborators|length
+              - response.payloads is defined
+              - response.payloads|length == collaborators|length
+              - response.payloads[0].invitee.login is defined
+              - response.payloads[0].invitee.login == collaborators[0].username
+              - response.payloads[0].permissions is defined
