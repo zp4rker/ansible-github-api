@@ -36,35 +36,44 @@ def run_module():
     request = dict(
         api_key=api_key,
         method='PUT',
+        accept='application/vnd.github.luke-cage-preview+json',
         endpoint='repos/{}/{}/branches/{}/protection'.format(module.params['owner'], module.params['name'], module.params['branch']),
         data={
-            'required_status_checks': None,
+            'required_status_checks': {},
             'enforce_admins': False,
-            'required_pull_request_reviews': None,
-            'restrictions': None
+            'required_pull_request_reviews': {},
+            'restrictions': {}
         }
     )
 
     # compile options
-    options = module.params['options']
-    for key in options:
+    rules = module.params['rules']
+    # insert values
+    for key in rules:
         if key == 'required_approvals':
-            if type(options[key]) is not int:
+            if type(rules[key]) is not int:
                 module.fail_json(msg='Field "required_approvals" must be an integer!')
 
-            request['data']['required_pull_request_reviews']['required_approving_review_count'] = options[key]
+            request['data']['required_pull_request_reviews']['required_approving_review_count'] = rules[key]
 
         elif key == 'require_code_owner_approval':
-            if type(options[key]) is not bool:
+            if type(rules[key]) is not bool:
                 module.fail_json(msg='Field "require_code_owner_approval" must be a boolean!')
 
-            request['data']['required_pull_request_reviews']['require_code_owner_reviews'] = options[key]
+            request['data']['required_pull_request_reviews']['require_code_owner_reviews'] = rules[key]
 
         elif key == 'include_admins':
-            if type(options[key]) is not bool:
+            if type(rules[key]) is not bool:
                 module.fail_json(msg='Field "include_admins" must be a boolean!')
 
-            request['data']['enforce_admins'] = options[key]
+            request['data']['enforce_admins'] = rules[key]
+
+    # remove values for empty dicts
+    for key in request['data']:
+        value = request['data'][key]
+        if type(value) is dict:
+            if not value:
+                request['data'][key] = None
 
     response = github_api.make_request(request)
 
