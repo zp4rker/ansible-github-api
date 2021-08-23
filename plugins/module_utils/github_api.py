@@ -20,6 +20,8 @@ def make_request(request):
         'Authorization': f'token {request["api_key"]}',
         'Accept': 'application/vnd.github.v3+json'
     }
+    if 'accept' in request:
+        headers['Accept'] = request['accept']
     uri = '{}{}'.format(base_uri, request['endpoint'])
 
     if request['data']:
@@ -35,6 +37,6 @@ def make_request(request):
     if response.reason == 'Unauthorized' and payload['message'] == 'Bad credentials':
         error = dict(msg='Failed to authorise due to invalid credentials.')
     elif not response.ok:
-        error = dict(msg=f'Request failed with reason: {response.reason}', payload=payload)
+        error = dict(msg=f'Request failed with reason: {response.reason}', payload=payload, raw=response)
 
     return dict(error=error, payload=payload, raw=response)
