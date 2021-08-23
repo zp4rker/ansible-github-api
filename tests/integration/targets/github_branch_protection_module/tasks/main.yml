@@ -8,11 +8,14 @@
 
     - name: Failure case 1 - Invalid credentials
       block:
-        - github_repo_collaborators:
+        - github_branch_protection:
             api_key: "{{GITHUB_API_KEY}}a"
             owner: "{{repo.owner}}"
             name: "{{repo.name}}"
-            collaborators: "{{collaborators}}"
+            rules:
+              required_approvals: 1
+              require_code_owner_approval: yes
+              include_admins: yes
       rescue:
         - name: Failure case 1 - Invalid credentials
           assert:
@@ -20,28 +23,31 @@
               - ansible_failed_result is defined
               - ansible_failed_result.msg == "Failed to authorise due to invalid credentials."
 
-    - name: Failure case 2 - Invalid collaborators field
+    - name: Failure case 2 - Invalid rules field
       block:
-        - github_repo_collaborators:
+        - github_branch_protection:
             api_key: "{{GITHUB_API_KEY}}"
             owner: "{{repo.owner}}"
             name: "{{repo.name}}"
-            collaborators:
-              - username: this_will_fail
+            rules:
+              required_approvals: this will fail
       rescue:
-        - name: Failure case 2 - Invalid collaborators field
+        - name: Failure case 2 - Invalid rules field
           assert:
             that:
               - ansible_failed_result is defined
-              - ansible_failed_result.msg == "Collaborator objects must contain a username and role."
+              - ansible_failed_result.msg == 'Field "required_approvals" must be an integer!'
 
     - name: Success case
       block:
-        - github_repo_collaborators:
+        - github_branch_protection:
             api_key: "{{GITHUB_API_KEY}}"
             owner: "{{repo.owner}}"
             name: "{{repo.name}}"
-            collaborators: "{{collaborators}}"
+            rules:
+              required_approvals: 1
+              require_code_owner_approval: yes
+              include_admins: yes
           register: response
 
         - name: Success case
