@@ -17,14 +17,14 @@ Invite users to collaborate on repository.
         role: push
 ```
 #### Options
-| Option                    | Description                                                                        | Required | Default |
-|---------------------------|------------------------------------------------------------------------------------|----------|---------|
-| api_key                   | The Github API key. Alternatively use ENV variable 'GITHUB_API_KEY'                | True     |         |
-| owner                     | The user or organisation which owns the repository.                                | True     |         |
-| name                      | The name of the repository.                                                        | True     |         |
-| collaborators             | A list of `collaborator` objects.                                                  | True     |         |
-| (`collaborator`) username | The username of the collaborator to add.                                           | True     |         |
-| (`collaborator`) role     | The role the collaborator should have. Options: pull, push, admin, maintain triage | True     |         |
+| Option                    | Type                 | Description                                                                        | Required |
+|---------------------------|----------------------|------------------------------------------------------------------------------------|----------|
+| api_key                   | String               | The Github API key. Alternatively use ENV variable 'GITHUB_API_KEY'                | True     |
+| owner                     | String               | The user or organisation which owns the repository.                                | True     |
+| name                      | String               | The name of the repository.                                                        | True     |
+| collaborators             | List(`collaborator`) | A list of `collaborator` objects.                                                  | True     |
+| (`collaborator`) username | String               | The username of the collaborator to add.                                           | True     |
+| (`collaborator`) role     | String               | The role the collaborator should have. Options: pull, push, admin, maintain triage | True     |
 
 ### `github_branch_protection`
 Update branch protection rules.
@@ -42,7 +42,23 @@ Update branch protection rules.
       include_admins: yes
 ```
 #### Options
-Coming soon.
+| Option                          | Type         | Description                                                                                          | Required |
+|---------------------------------|--------------|------------------------------------------------------------------------------------------------------|----------|
+| api_key                         | String       | The Github API key. Alternatively use ENV variable 'GITHUB_API_KEY'                                  | True     |
+| owner                           | String       | The user or organisation which owns the repository.                                                  | True     |
+| name                            | String       | The name of the repository.                                                                          | True     |
+| branch                          | String       | The branch to apply the rules to.                                                                    | True     |
+| rules                           | Object       | See below rows                                                                                       | True     |
+| required_approvals              | Integer      | The minimum approvals required for PRs.                                                              | False    |
+| require_code_owner_approval     | Boolean      | Blocks merging pull requests until code owners review them.                                          | False    |
+| dismiss_stale_reviews           | Boolean      | Dismiss approving reviews when someone pushes a new commit.                                          | False    |
+| users_can_dismiss_reviews       | List(String) | The list of users with dismissal access. (For organisations only)                                    | False    |
+| teams_can_dismiss_reviews       | List(String) | The list of teams with dismissal access. (For organisations only)                                    | False    |
+| include_admins                  | Boolean      | Enforce all configured restrictions for administrators.                                              | False    |
+| require_linear_history          | Boolean      | Enforces a linear commit Git history, which prevents anyone from pushing merge commits to a branch.  | False    |
+| allow_force_pushes              | Boolean      | Permits force pushes to the protected branch by anyone with write access to the repository.          | False    |
+| allow_deletion                  | Boolean      | Allows deletion of the protected branch by anyone with write access to the repository.               | False    |
+| require_conversation_resolution | Boolean      | Requires all conversations on code to be resolved before a pull request can be merged into a branch. |          |
 
 ### `github_raw`
 Make a custom request to the Github API.
