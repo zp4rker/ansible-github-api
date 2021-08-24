@@ -8,7 +8,7 @@
 
     - name: Failure case 1 - Invalid credentials
       block:
-        - github_api:
+        - github_raw:
             api_key: "{{GITHUB_API_KEY}}a"
             endpoint: user
       rescue:
@@ -20,7 +20,7 @@
 
     - name: Failure case 2 - Failed request
       block:
-        - github_api:
+        - github_raw:
             api_key: "{{GITHUB_API_KEY}}"
             endpoint: user/repos
             method: POST
@@ -35,7 +35,7 @@
 
     - name: Success case
       block:
-        - github_api:
+        - github_raw:
             api_key: "{{GITHUB_API_KEY}}"
             endpoint: user
           register: response

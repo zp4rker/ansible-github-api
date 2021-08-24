@@ -1,0 +1,62 @@
+---
+- fail:
+    msg: "Please fill in the details in vars/main.yml"
+  when: GITHUB_API_KEY == "fill_me_in" or repo.owner == "insert_username_here" or repo.name == "insert_repo_name_here"
+  
+- name: Test cases
+  block:
+
+    - name: Failure case 1 - Invalid credentials
+      block:
+        - github_branch_protection:
+            api_key: "{{GITHUB_API_KEY}}a"
+            owner: "{{repo.owner}}"
+            name: "{{repo.name}}"
+            branch: "{{repo.branch}}"
+            rules:
+              required_approvals: 1
+              require_code_owner_approval: yes
+              include_admins: yes
+      rescue:
+        - name: Failure case 1 - Invalid credentials
+          assert:
+            that:
+              - ansible_failed_result is defined
+              - ansible_failed_result.msg == "Failed to authorise due to invalid credentials."
+
+    - name: Failure case 2 - Invalid rules field
+      block:
+        - github_branch_protection:
+            api_key: "{{GITHUB_API_KEY}}"
+            owner: "{{repo.owner}}"
+            name: "{{repo.name}}"
+            branch: "{{repo.branch}}"
+            rules:
+              required_approvals: this will fail
+      rescue:
+        - name: Failure case 2 - Invalid rules field
+          assert:
+            that:
+              - ansible_failed_result is defined
+              - ansible_failed_result.msg == 'Field "required_approvals" must be an integer!'
+
+    - name: Success case
+      block:
+        - github_branch_protection:
+            api_key: "{{GITHUB_API_KEY}}"
+            owner: "{{repo.owner}}"
+            name: "{{repo.name}}"
+            branch: "{{repo.branch}}"
+            rules:
+              required_approvals: 1
+              require_code_owner_approval: yes
+              include_admins: yes
+          register: response
+
+        - name: Success case
+          assert:
+            that:
+              - response.payload is defined
+              - response.payload.enforce_admins.enabled
+              - response.payload.required_pull_request_reviews.require_code_owner_reviews
+              - response.payload.required_pull_request_reviews.required_approving_review_count == 1

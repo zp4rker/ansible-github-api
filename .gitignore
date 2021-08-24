@@ -1,3 +1,7 @@
 .DS_Store
 
+penv
+.idea
+*.iml
+
 **/tests/output

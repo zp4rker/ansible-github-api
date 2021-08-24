@@ -1,0 +1,8 @@
+---
+GITHUB_API_KEY: fill_me_in
+
+# Test repo details
+repo:
+  owner: insert_username_here # owner of repo
+  name: insert_repo_name_here # name of repo
+  branch: main # the branch to apply the rules to

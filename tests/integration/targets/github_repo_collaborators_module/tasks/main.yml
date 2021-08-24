@@ -1,0 +1,54 @@
+---
+- fail:
+    msg: "Please fill in the details in vars/main.yml"
+  when: GITHUB_API_KEY == "fill_me_in" or repo.owner == "insert_username_here" or repo.name == "insert_repo_name_here"
+  
+- name: Test cases
+  block:
+
+    - name: Failure case 1 - Invalid credentials
+      block:
+        - github_repo_collaborators:
+            api_key: "{{GITHUB_API_KEY}}a"
+            owner: "{{repo.owner}}"
+            name: "{{repo.name}}"
+            collaborators: "{{collaborators}}"
+      rescue:
+        - name: Failure case 1 - Invalid credentials
+          assert:
+            that:
+              - ansible_failed_result is defined
+              - ansible_failed_result.msg == "Failed to authorise due to invalid credentials."
+
+    - name: Failure case 2 - Invalid collaborators field
+      block:
+        - github_repo_collaborators:
+            api_key: "{{GITHUB_API_KEY}}"
+            owner: "{{repo.owner}}"
+            name: "{{repo.name}}"
+            collaborators:
+              - username: this_will_fail
+      rescue:
+        - name: Failure case 2 - Invalid collaborators field
+          assert:
+            that:
+              - ansible_failed_result is defined
+              - ansible_failed_result.msg == "Collaborator objects must contain a username and role."
+
+    - name: Success case
+      block:
+        - github_repo_collaborators:
+            api_key: "{{GITHUB_API_KEY}}"
+            owner: "{{repo.owner}}"
+            name: "{{repo.name}}"
+            collaborators: "{{collaborators}}"
+          register: response
+
+        - name: Success case
+          assert:
+            that:
+              - response.payloads is defined
+              - response.payloads|length == collaborators|length
+              - response.payloads[0].invitee.login is defined
+              - response.payloads[0].invitee.login == collaborators[0].username
+              - response.payloads[0].permissions is defined

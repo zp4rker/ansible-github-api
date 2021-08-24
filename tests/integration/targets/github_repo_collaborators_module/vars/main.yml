@@ -1,0 +1,12 @@
+---
+GITHUB_API_KEY: fill_me_in
+
+# Test repo details
+repo:
+  owner: insert_username_here # owner of repo
+  name: insert_repo_name_here # name of repo
+
+# Test collaborators
+collaborators: # each collaborator must contain a username and role
+  - username: test
+    role: push
