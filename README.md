@@ -14,10 +14,17 @@ Invite users to collaborate on repository.
     name: repo_name
     collaborators:
       - username: collaborator_username
--       role: push
+        role: push
 ```
 #### Options
-Coming soon.
+| Option                    | Description                                                                        | Required | Default |
+|---------------------------|------------------------------------------------------------------------------------|----------|---------|
+| api_key                   | The Github API key. Alternatively use ENV variable 'GITHUB_API_KEY'                | True     |         |
+| owner                     | The user or organisation which owns the repository.                                | True     |         |
+| name                      | The name of the repository.                                                        | True     |         |
+| collaborators             | A list of `collaborator` objects.                                                  | True     |         |
+| (`collaborator`) username | The username of the collaborator to add.                                           | True     |         |
+| (`collaborator`) role     | The role the collaborator should have. Options: pull, push, admin, maintain triage | True     |         |
 
 ### `github_branch_protection`
 Update branch protection rules.
