@@ -64,9 +64,7 @@ def run_module():
             if module.params[key]:
                 request['data'][key] = module.params[key]
 
-    request = create_repo(module, request)
-
-    response = github_api.make_request(request)
+    response = create_repo(module, request)
 
     if response['error']:
         if 'Request failed' in response['error']['msg']:
@@ -87,6 +85,8 @@ def create_repo(module, request):
         request['endpoint'] = f'orgs/{module.params["organisation"]}/repos'
     else:
         request['endpoint'] = 'user/repos'
+
+    return github_api.make_request(request)
 
 
 # def update_repo(module, request)
