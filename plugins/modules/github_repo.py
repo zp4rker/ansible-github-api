@@ -57,16 +57,14 @@ def run_module():
         data=dict(name=module.params['name'])
     )
 
-    if module.params['organisation']:
-        request['endpoint'] = f'orgs/{module.params["organisation"]}/repos'
-    else:
-        request['endpoint'] = 'user/repos'
+    if module.params['state'] == 'present':
+        for key in module_args.keys():
+            if key == 'organisation':
+                continue
+            if module.params[key]:
+                request['data'][key] = module.params[key]
 
-    for key in module_args.keys():
-        if key == 'organisation':
-            continue
-        if module.params[key]:
-            request['data'][key] = module.params[key]
+    request = create_repo(module, request)
 
     response = github_api.make_request(request)
 
@@ -82,6 +80,20 @@ def run_module():
     result['payload'] = response['payload']
 
     module.exit_json(**result)
+
+
+def create_repo(module, request):
+    if module.params['organisation']:
+        request['endpoint'] = f'orgs/{module.params["organisation"]}/repos'
+    else:
+        request['endpoint'] = 'user/repos'
+
+
+# def update_repo(module, request)
+
+
+# def delete_repo(module, request)
+
 
 
 def main():
