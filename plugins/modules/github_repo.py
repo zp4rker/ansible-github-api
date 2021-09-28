@@ -61,6 +61,8 @@ def run_module():
     if not module.params['organisation']:
         owner = github_api.get_login(api_key)
 
+    request['endpoint'] = f'repos/{owner}/{module.params["name"]}'
+
     response = None
     if module.params['state'] == 'present':
         for key in module_args.keys():
@@ -73,6 +75,8 @@ def run_module():
             response = update_repo(module, request)
         else:
             response = create_repo(module, request)
+    else:
+        response = delete_repo(module, request)
 
     if response['error']:
         if 'Request failed' in response['error']['msg']:
@@ -97,19 +101,18 @@ def create_repo(module, request):
     return github_api.make_request(request)
 
 
-def update_repo(module, request)
-    if module.params['organisation']:
-        request['endpoint'] = f'orgs/{module.params["organisation"]}/repos'
-    else:
-        request['endpoint'] = 'user/repos'
-
+def update_repo(module, request):
     request['method'] = 'PATCH'
+    del request['data']['name']
 
     return github_api.make_request(request)
 
 
-# def delete_repo(module, request)
+def delete_repo(module, request):
+    request['method'] = 'DELETE'
+    del request['data']
 
+    return github_api.make_request(request)
 
 
 def main():
