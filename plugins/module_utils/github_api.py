@@ -40,3 +40,30 @@ def make_request(request):
         error = dict(msg=f'Request failed with reason: {response.reason}', payload=payload, raw=response)
 
     return dict(error=error, payload=payload, raw=response)
+
+
+def get_login(api_key):
+    request = dict(
+        api_key=api_key,
+        method='GET',
+        endpoint='user'
+    )
+
+    response = make_request(request)
+
+    if response['error']:
+        return None
+    else:
+        return response['login']
+
+
+def repo_exists(api_key, owner, name):
+    request = dict(
+        api_key=api_key,
+        method='GET',
+        endpoint=f'repos/{owner}/{name}'
+    )
+
+    response = make_request(request)
+
+    return not response['error'] and not response['error']['message'] == 'Not Found'

@@ -38,7 +38,7 @@ def run_module():
 
     result = dict(
         changed=False,
-        payload=[]
+        payload={}
     )
 
     module = AnsibleModule(
@@ -57,6 +57,11 @@ def run_module():
         data=dict(name=module.params['name'])
     )
 
+    owner = module.params['organisation']
+    if not module.params['organisation']:
+        owner = github_api.get_login(api_key)
+
+    response = None
     if module.params['state'] == 'present':
         for key in module_args.keys():
             if key == 'organisation':
@@ -64,12 +69,15 @@ def run_module():
             if module.params[key]:
                 request['data'][key] = module.params[key]
 
-    response = create_repo(module, request)
+        if github_api.repo_exists(owner, module.params['name']):
+            response = update_repo(module, request)
+        else:
+            response = create_repo(module, request)
 
     if response['error']:
         if 'Request failed' in response['error']['msg']:
             module.fail_json(
-                msg=f'Failed to add {collaborator["username"]} as a collaborator with role {collaborator["role"]} with reason: {response["error"]["raw"].reason}',
+                msg=f'Failed to complete action with reason: {response["error"]["raw"].reason}',
                 payload=response['error']['payload']
             )
         else:
@@ -89,7 +97,15 @@ def create_repo(module, request):
     return github_api.make_request(request)
 
 
-# def update_repo(module, request)
+def update_repo(module, request)
+    if module.params['organisation']:
+        request['endpoint'] = f'orgs/{module.params["organisation"]}/repos'
+    else:
+        request['endpoint'] = 'user/repos'
+
+    request['method'] = 'PATCH'
+
+    return github_api.make_request(request)
 
 
 # def delete_repo(module, request)
