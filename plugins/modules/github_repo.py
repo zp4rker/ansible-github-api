@@ -15,7 +15,9 @@ def run_module():
         
         name=dict(type='str', required=True),
         archived=dict(type='bool', required=False),
-        private=dict(type='bool', required=False),
+        visibility=dict(type='str', required=True, choices=['public', 'private', 'internal']),
+        default_branch=dict(type='str', required=False),
+
         description=dict(type='str', required=False),
         homepage=dict(type='str', required=False),
         
@@ -25,7 +27,9 @@ def run_module():
 
         is_template=dict(type='bool', required=False),
 
-        default_branch=dict(type='str', required=False),
+        auto_init=dict(type='bool', required=False),
+        gitignore_template=dict(type='str', required=False),
+        license_template=dict(type='str', required=False, choices=github_api.licenses),
 
         allow_squash_merge=dict(type='bool', required=False),
         allow_merge_commit=dict(type='bool', required=False),
