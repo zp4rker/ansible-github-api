@@ -15,7 +15,7 @@ def run_module():
         
         name=dict(type='str', required=True),
         archived=dict(type='bool', required=False),
-        visibility=dict(type='str', required=True, choices=['public', 'private', 'internal']),
+        visibility=dict(type='str', required=False, choices=['public', 'private', 'internal'], default='public'),
         default_branch=dict(type='str', required=False),
 
         description=dict(type='str', required=False),
@@ -74,10 +74,10 @@ def run_module():
         for key in module_args.keys():
             if key == 'organisation':
                 continue
-            if module.params[key]:
+            if key in module.params and module.params[key]:
                 request['data'][key] = module.params[key]
 
-        if github_api.repo_exists(owner, module.params['name']): # update repo
+        if github_api.repo_exists(api_key, owner, module.params['name']): # update repo
             response = update_repo(module, request)
         else: # create repo
             response = create_repo(module, request)
@@ -85,7 +85,7 @@ def run_module():
         response = delete_repo(module, request)
 
     # handle response
-    if response['error']:
+    if 'error' in response.keys() and response['error']:
         if 'Request failed' in response['error']['msg']:
             module.fail_json(
                 msg=f'Failed to complete action with reason: {response["error"]["raw"].reason}',

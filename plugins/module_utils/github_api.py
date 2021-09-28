@@ -26,7 +26,7 @@ def make_request(request):
         headers['Accept'] = request['accept']
     uri = '{}{}'.format(base_uri, request['endpoint'])
 
-    if request['data']:
+    if 'data' in request.keys() and request['data']:
         response = requests.request(request['method'], uri, data=json.dumps(request['data']), headers=headers)
     else:
         response = requests.request(request['method'], uri, headers=headers)
