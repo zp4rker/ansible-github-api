@@ -57,27 +57,30 @@ def run_module():
         data=dict(name=module.params['name'])
     )
 
+    # to use in endpoint
     owner = module.params['organisation']
     if not module.params['organisation']:
         owner = github_api.get_login(api_key)
 
     request['endpoint'] = f'repos/{owner}/{module.params["name"]}'
 
-    response = None
+
     if module.params['state'] == 'present':
+        # add params to data
         for key in module_args.keys():
             if key == 'organisation':
                 continue
             if module.params[key]:
                 request['data'][key] = module.params[key]
 
-        if github_api.repo_exists(owner, module.params['name']):
+        if github_api.repo_exists(owner, module.params['name']): # update repo
             response = update_repo(module, request)
-        else:
+        else: # create repo
             response = create_repo(module, request)
-    else:
+    else: # delete repo
         response = delete_repo(module, request)
 
+    # handle response
     if response['error']:
         if 'Request failed' in response['error']['msg']:
             module.fail_json(
